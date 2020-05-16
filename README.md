@@ -51,6 +51,11 @@ echo $jwt;
 
 jwt_set_payload also allows a config array to be sent as the second parameter
 
+issuer: Your application name
+subject: Why was this JWT created - e.g. Authentication
+audience: Who may use this token
+expiryperiod: period in which this token is valid, starting from now, expressed in seconds
+
 ```php
 include_once("jwt.php");
 
@@ -60,7 +65,7 @@ $jwt = jwt_token();
 echo $jwt;
 ```
 
-# JWT Validation
+# Online JWT Validation
 
 I use this site to validate my JWTs
 
