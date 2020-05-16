@@ -1,46 +1,9 @@
 <?php
+include "base64url.php";
 
 $SecretKey = "SuperSecretKeyDontShare";
 $defaultConfig = array("issuer"=>"phpjwt","subject"=>"jwt","audience"=>"testing");
-
-// https://base64.guru/developers/php/examples/base64url
-/**
- * Encode data to Base64URL
- * @param string $data
- * @return boolean|string
- */
-function base64url_encode($data)
-{
-  // First of all you should encode $data to Base64 string
-  $b64 = base64_encode($data);
-
-  // Make sure you get a valid result, otherwise, return FALSE, as the base64_encode() function do
-  if ($b64 === false) {
-    return false;
-  }
-
-  // Convert Base64 to Base64URL by replacing “+” with “-” and “/” with “_”
-  $url = strtr($b64, '+/', '-_');
-
-  // Remove padding character from the end of line and return the Base64URL result
-  return rtrim($url, '=');
-}
-
-/**
- * Decode data from Base64URL
- * @param string $data
- * @param boolean $strict
- * @return boolean|string
- */
-function base64url_decode($data, $strict = false)
-{
-  // Convert Base64URL to Base64 by replacing “-” with “+” and “_” with “/”
-  $b64 = strtr($data, '-_', '+/');
-
-  // Decode Base64 string and return the original data
-  return base64_decode($b64, $strict);
-}
-//====================================================
+$jwtError = array();
 
 function jwt_header() {
     return [
@@ -114,15 +77,61 @@ function make_payload($payload, $config = NULL) {
 
 function jwt_token() {
     $header = base64url_encode(json_encode(jwt_header()));
-    //echo "Header: $header <br/>";
+    echo "Header: $header <br/>";
     $payload = base64url_encode(json_encode(jwt_payload()));
-    //echo "Payload: $payload <br/>";
+    echo "Payload: $payload <br/>";
     $secret = jwt_secret();
     $raw = $header.".".$payload;
     $signature = hash_hmac("sha256",$raw,$secret);
     $jwt_token = $raw.".".base64url_encode($signature);
     return $jwt_token;
-
 }
+
+function jwt_error() {
+    global $jwtError;
+    return $jwtError;
+}
+
+function validate_jwt($token,$time=false,$aud=NULL) {
+    global $jwtError;
+    $jwtError = array();
+    $section = explode('.', $token);
+    $secret = jwt_secret();
+    $header = $section[0];
+    $payload = $section[1];
+    echo "Header: $header <br/>";
+    echo "Payload: $payload <br/>";
+    
+    $raw = $header.".".$payload;
+    $signature = base64url_encode(hash_hmac("sha256",$raw,$secret));    
+    if ($signature == $section[2]) {
+        if ($time) {
+            $payload = json_decode(base64url_decode($section[1]));
+            $now = new DateTime();
+            if ($payload->exp < $now->getTimestamp()) {
+                $jwtError[] = "Token has expired";
+                return false;
+            }
+        }
+        if ($aud != NULL) {
+            $payload = json_decode(base64url_decode($section[1]));
+            if ($payload->aud != $aud) {
+                $jwtError[] = "Invalid Audience";
+                return false;
+            }
+        }
+        return true;
+    } else {
+        $jwtError[] = "Signature does not match";
+        return false;
+    }
+}
+
+function get_jwt_payload($token) {
+    $section = explode('.', $token);
+    $payload = base64url_decode($section[1]);
+    return json_decode($payload);
+}
+
 
 ?>

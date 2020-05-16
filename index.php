@@ -8,5 +8,13 @@ echo $jwt;
 echo "<br/>";
 echo "<br/>";
 echo "<br/>";
+echo "Lets validate<br/>";
+if (validate_jwt($jwt, true, "GITHub users")) {
+    echo "Token is valid<br/>";
+    var_dump(get_jwt_payload($jwt)->data);
+} else {
+    echo "ERROR: Token is invalid<br/>Messages:";
+    var_dump(jwt_error());
+}
 
 ?>

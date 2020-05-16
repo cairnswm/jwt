@@ -66,5 +66,62 @@ I use this site to validate my JWTs
 
 http://jwt.calebb.net/
 
+## To validate using jwt.php
+
+### Just Validate the signature
+
+```php
+if (validate_jwt($jwt)) {
+    echo "Token is Valid";
+} else {
+    echo "ERROR: Token is invalid!!!";
+}
+```
+
+### Validate Signature and Expiry
+
+```php
+if (validate_jwt($jwt, true)) {
+    echo "Token is Valid";
+} else {
+    echo "ERROR: Token is invalid!!!";
+}
+```
+
+### Validate Signature, Expiry and Audience
+
+```php
+if (validate_jwt($jwt, true, "GITHub users")) {
+    echo "Token is Valid";
+} else {
+    echo "ERROR: Token is invalid!!!";
+}
+```
+
+### Get payload from valid JWT
+
+```php
+if (validate_jwt($jwt, true)) {
+    echo "Token is Valid";
+    var_dump(get_jwt_payload($jwt)->data);
+} else {
+    echo "ERROR: Token is invalid!!!";
+}
+```
+
+### Retrieve errors when token is invalid
+
+```php
+if (validate_jwt($jwt, true)) {
+    echo "Token is Valid";
+    var_dump(get_jwt_payload($jwt)->data);
+} else {
+    echo "ERROR: Token is invalid!!!";
+    var_dump(jwt_error());
+}
+```
+
+jwt_error returns an array of error messages.
+
 
 
