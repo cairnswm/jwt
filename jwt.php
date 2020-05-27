@@ -77,9 +77,7 @@ function make_payload($payload, $config = NULL) {
 
 function jwt_token() {
     $header = base64url_encode(json_encode(jwt_header()));
-    echo "Header: $header <br/>";
     $payload = base64url_encode(json_encode(jwt_payload()));
-    echo "Payload: $payload <br/>";
     $secret = jwt_secret();
     $raw = $header.".".$payload;
     $signature = hash_hmac("sha256",$raw,$secret);
@@ -99,8 +97,6 @@ function validate_jwt($token,$time=false,$aud=NULL) {
     $secret = jwt_secret();
     $header = $section[0];
     $payload = $section[1];
-    echo "Header: $header <br/>";
-    echo "Payload: $payload <br/>";
     
     $raw = $header.".".$payload;
     $signature = base64url_encode(hash_hmac("sha256",$raw,$secret));    
