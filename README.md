@@ -1,6 +1,6 @@
 # JWT
 
-Simple PHP creation of JWT (JSON Web Token))
+Simple PHP creation and Validation of JWTs (JSON Web Token)
 
 ## What is a JWT 
 
